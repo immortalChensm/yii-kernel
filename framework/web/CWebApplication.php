@@ -279,10 +279,11 @@ class CWebApplication extends CApplication
 	    //根据uri造出控制器
 		if(($ca=$this->createController($route))!==null)
 		{
+		    //控制器对象，控制器的方法
 			list($controller,$actionID)=$ca;
 			$oldController=$this->_controller;
 			$this->_controller=$controller;
-			//控制器初始化操作
+			//控制器初始化操作 一般是子类的init要做一些初始化时使用
 			$controller->init();
 			//运行控制器的方法
 			$controller->run($actionID);
@@ -313,26 +314,34 @@ class CWebApplication extends CApplication
 	 * @param CWebModule $owner the module that the new controller will belong to. Defaults to null, meaning the application
 	 * instance is the owner.
 	 * @return array the controller instance and the action ID. Null if the controller class does not exist or the route is invalid.
+     *
+     * 创建控制器对象，然后返回【controllerObj,actionId】
 	 */
 	public function createController($route,$owner=null)
 	{
 		if($owner===null)
 			$owner=$this;
 		if((array)$route===$route || ($route=trim($route,'/'))==='')
+		    //得以默认的控制器
 			$route=$owner->defaultController;
 		$caseSensitive=$this->getUrlManager()->caseSensitive;
 
 		$route.='/';
 		while(($pos=strpos($route,'/'))!==false)
 		{
+		    //controller/action 取得controller
 			$id=substr($route,0,$pos);
+			//验证是否匹配
 			if(!preg_match('/^\w+$/',$id))
 				return null;
 			if(!$caseSensitive)
+			    //是否大小写敏感
 				$id=strtolower($id);
+			//取得controller/action action
 			$route=(string)substr($route,$pos+1);
 			if(!isset($basePath))  // first segment
 			{
+			    //控制器池
 				if(isset($owner->controllerMap[$id]))
 				{
 					return array(
@@ -349,14 +358,19 @@ class CWebApplication extends CApplication
 			}
 			else
 				$controllerID.='/';
+
+			//完整的controller 名称
 			$className=ucfirst($id).'Controller';
+			//controller file文件
 			$classFile=$basePath.DIRECTORY_SEPARATOR.$className.'.php';
 
 			if($owner->controllerNamespace!==null)
 				$className=$owner->controllerNamespace.'\\'.str_replace('/','\\',$controllerID).$className;
 
+			//控制器文件存在否
 			if(is_file($classFile))
 			{
+			    //引入控制器为文件
 				if(!class_exists($className,false))
 					require($classFile);
 				if(class_exists($className,false) && is_subclass_of($className,'CController'))

@@ -122,6 +122,7 @@ class CAccessControlFilter extends CFilter
 		{
 			if(is_array($rule) && isset($rule[0]))
 			{
+			    //该对象存储了allow的方法名称
 				$r=new CAccessRule;
 				$r->allow=$rule[0]==='allow';
 				//取出actions
@@ -151,8 +152,10 @@ class CAccessControlFilter extends CFilter
 		$verb=$request->getRequestType();
 		$ip=$request->getUserHostAddress();
 
+		//取得规则池
 		foreach($this->getRules() as $rule)
 		{
+		    //当前用户，当前控制器，当前方法对象，当前ip,当前参数
 			if(($allow=$rule->isUserAllowed($user,$filterChain->controller,$filterChain->action,$ip,$verb))>0) // allowed
 				break;
 			elseif($allow<0) // denied
@@ -296,6 +299,7 @@ class CAccessRule extends CComponent
 	 * @param string $verb the request verb (GET, POST, etc.)
 	 * @return integer 1 if the user is allowed, -1 if the user is denied, 0 if the rule does not apply to the user
 	 */
+	//  //当前用户，当前控制器，当前方法对象，当前ip,当前参数
 	public function isUserAllowed($user,$controller,$action,$ip,$verb)
 	{
 		if($this->isActionMatched($action)

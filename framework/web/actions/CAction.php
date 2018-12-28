@@ -40,7 +40,9 @@ abstract class CAction extends CComponent implements IAction
 	 */
 	public function __construct($controller,$id)
 	{
+	    //控制器对象
 		$this->_controller=$controller;
+		//控制器的方法名
 		$this->_id=$id;
 	}
 

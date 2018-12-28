@@ -58,10 +58,13 @@ class CFilterChain extends CList
 	 * @throws CException
      * 解析得到过滤器的名称，过滤器后面的+-名称会去掉
      * 如果过滤器是个类名则直接实例化，如果不是则是CInlineFilter
-     * 最终将过滤器放入过滤器池里
+     * 最终将过滤器对象[CInlineFilter对象]放入过滤器池里
 	 */
 	public static function create($controller,$action,$filters)
 	{
+	    //过滤器链对象
+        //CFilterChain继承了
+        //CList
 		$chain=new CFilterChain($controller,$action);
 
 		//从CInlineAction对象取得方法名
@@ -72,9 +75,13 @@ class CFilterChain extends CList
 			{
 				if(($pos=strpos($filter,'+'))!==false || ($pos=strpos($filter,'-'))!==false)
 				{
+				    //检测filterName [+|- action1 action2] action1是否匹配
 					$matched=preg_match("/\b{$actionID}\b/i",substr($filter,$pos+1))>0;
 					if(($filter[$pos]==='+')===$matched)
 					    //实例化Inline过滤器，并保存过滤器的名称
+					    //$controller 控制器对象
+					    //trim(substr($filter,0,$pos)) 截取的过滤器名
+					    //会创建一个指定的【其成员的name=过滤器名称】对象
 						$filter=CInlineFilter::create($controller,trim(substr($filter,0,$pos)));
 				}
 				else
@@ -140,7 +147,7 @@ class CFilterChain extends CList
 	{
 		if($this->offsetExists($this->filterIndex))
 		{
-		    //从过滤器池里取出各个过滤器
+		    //从过滤器对象池里取出各个过滤器
 			$filter=$this->itemAt($this->filterIndex++);
 			Yii::trace('Running filter '.($filter instanceof CInlineFilter ? get_class($this->controller).'.filter'.$filter->name.'()':get_class($filter).'.filter()'),'system.web.filters.CFilterChain');
 			//运行过滤器的过滤方法

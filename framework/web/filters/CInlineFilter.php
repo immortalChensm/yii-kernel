@@ -33,6 +33,7 @@ class CInlineFilter extends CFilter
 	 * @param string $filterName the filter name
 	 * @return CInlineFilter the created instance
 	 * @throws CException if the filter method does not exist
+     * 创建一个指定的过滤器对象返回
 	 */
 	public static function create($controller,$filterName)
 	{
@@ -40,6 +41,7 @@ class CInlineFilter extends CFilter
 		if(method_exists($controller,'filter'.$filterName))
 		{
 			$filter=new CInlineFilter;
+			//设置过滤器的名称
 			$filter->name=$filterName;
 			return $filter;
 		}
@@ -51,7 +53,8 @@ class CInlineFilter extends CFilter
 	/**
 	 * Performs the filtering.
 	 * This method calls the filter method defined in the controller class.
-	 * @param CFilterChain $filterChain the filter chain that the filter is on.
+	 * @param CFilterChain $filterChain the filter chain that the filter is on. 过滤器链对象
+     *
 	 */
 	public function filter($filterChain)
 	{

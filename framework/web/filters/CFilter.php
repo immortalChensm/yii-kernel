@@ -35,6 +35,7 @@ class CFilter extends CComponent implements IFilter
 	 */
 	public function filter($filterChain)
 	{
+	    //预先过滤
 		if($this->preFilter($filterChain))
 		{
 			$filterChain->run();

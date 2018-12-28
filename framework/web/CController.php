@@ -256,12 +256,14 @@ class CController extends CBaseController
 	 */
 	public function run($actionID)
 	{
+	    //返回CInlineAction对象
 		if(($action=$this->createAction($actionID))!==null)
 		{
 			if(($parent=$this->getModule())===null)
 				$parent=Yii::app();
 			if($parent->beforeControllerAction($this,$action))
 			{
+			    //$action 控制器方法对象[CInlineAction],控制器的过滤器
 				$this->runActionWithFilters($action,$this->filters());
 				$parent->afterControllerAction($this,$action);
 			}
@@ -403,6 +405,7 @@ class CController extends CBaseController
 	}
 
 	/**
+     * 返回CInlineAction 对象
 	 * Creates the action instance based on the action name.
 	 * The action can be either an inline action or an object.
 	 * The latter is created by looking up the action map specified in {@link actions}.
@@ -417,6 +420,9 @@ class CController extends CBaseController
 		if($actionID==='')
 			$actionID=$this->defaultAction;
 		if(method_exists($this,'action'.$actionID) && strcasecmp($actionID,'s')) // we have actions method
+		    //CInlineAction继承
+		    //CAction继承
+		    //CComponent
 			return new CInlineAction($this,$actionID);
 		else
 		{
@@ -433,15 +439,16 @@ class CController extends CBaseController
 	 * This method will check to see if the action ID appears in the given
 	 * action map. If so, the corresponding configuration will be used to
 	 * create the action instance.
-	 * @param array $actionMap the action map
-	 * @param string $actionID the action ID that has its prefix stripped off
-	 * @param string $requestActionID the originally requested action ID
+	 * @param array $actionMap the action map 方法映射池
+	 * @param string $actionID the action ID that has its prefix stripped off 控制器方法
+	 * @param string $requestActionID the originally requested action ID 当前请求的方法
 	 * @param array $config the action configuration that should be applied on top of the configuration specified in the map
 	 * @return CAction the action instance, null if the action does not exist.
 	 * @throws CException
 	 */
 	protected function createActionFromMap($actionMap,$actionID,$requestActionID,$config=array())
 	{
+	    //方法池里存在指定的方法时
 		if(($pos=strpos($actionID,'.'))===false && isset($actionMap[$actionID]))
 		{
 		    //得到控制器的方法池
@@ -1155,6 +1162,7 @@ class CController extends CBaseController
 	{
 	    //访问控制过滤器
 		$filter=new CAccessControlFilter;
+		//将允许的规则映射为CAccessRule对象保存在规则池里
 		$filter->setRules($this->accessRules());
 		$filter->filter($filterChain);
 	}
