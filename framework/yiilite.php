@@ -70,6 +70,7 @@ class YiiBase
 	{
 		return YII_PATH;
 	}
+	//得到组件类后实例返回
 	public static function createComponent($config)
 	{
 		$args = func_get_args();

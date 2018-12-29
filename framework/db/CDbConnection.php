@@ -335,6 +335,7 @@ class CDbConnection extends CApplicationComponent
 	}
 
 	/**
+     * 打开或关闭数据库连接
 	 * Open or close the DB connection.
 	 * @param boolean $value whether to open or close DB connection
 	 * @throws CException if connection fails
@@ -344,6 +345,7 @@ class CDbConnection extends CApplicationComponent
 		if($value!=$this->_active)
 		{
 			if($value)
+			    //连接数据库
 				$this->open();
 			else
 				$this->close();
@@ -376,6 +378,8 @@ class CDbConnection extends CApplicationComponent
 	}
 
 	/**
+     * 打开DB连接
+     * 连接数据库【pdo】保存在pdo对象
 	 * Opens DB connection if it is currently not
 	 * @throws CException if connection fails
 	 */
@@ -388,7 +392,9 @@ class CDbConnection extends CApplicationComponent
 			try
 			{
 				Yii::trace('Opening DB connection','system.db.CDbConnection');
+				//创建pdo连接
 				$this->_pdo=$this->createPdoInstance();
+				//设置pdo错误处理方式，数据库编码等操作
 				$this->initConnection($this->_pdo);
 				$this->_active=true;
 			}
@@ -421,6 +427,7 @@ class CDbConnection extends CApplicationComponent
 	}
 
 	/**
+     * 创建pdo连接资源
 	 * Creates the PDO instance.
 	 * When some functionalities are missing in the pdo driver, we may use
 	 * an adapter class to provide them.
@@ -451,6 +458,7 @@ class CDbConnection extends CApplicationComponent
 	}
 
 	/**
+     * 设置pdo错误处理方式，字符编码
 	 * Initializes the open db connection.
 	 * This method is invoked right after the db connection is established.
 	 * The default implementation is to set the charset for MySQL, MariaDB and PostgreSQL database connections.
@@ -523,7 +531,8 @@ class CDbConnection extends CApplicationComponent
 		return $this->_transaction=new CDbTransaction($this);
 	}
 
-	/**
+	/**根据当前的连接返回对应类型【数据库类型驱动映射数组】里取出对应的对象
+     * 如果配置文件的mysql则会CMysqlSchema对象
 	 * Returns the database schema for the current connection
 	 * @throws CDbException if CDbConnection does not support reading schema for specified database driver
 	 * @return CDbSchema the database schema for the current connection
@@ -534,8 +543,27 @@ class CDbConnection extends CApplicationComponent
 			return $this->_schema;
 		else
 		{
+		    //得到驱动类型
+            //'connectionString' => 'mysql:host=localhost;dbname=web',
+            //会得到mysql驱动
 			$driver=$this->getDriverName();
+			//从驱动类型映射池【或叫映射数组】里取出
+            /**
+            $driverMap=[
+            'cubrid'=>'CCubridSchema',  // CUBRID
+            'pgsql'=>'CPgsqlSchema',    // PostgreSQL
+            'mysqli'=>'CMysqlSchema',   // MySQL
+            'mysql'=>'CMysqlSchema',    // MySQL,MariaDB
+            'sqlite'=>'CSqliteSchema',  // sqlite 3
+            'sqlite2'=>'CSqliteSchema', // sqlite 2
+            'mssql'=>'CMssqlSchema',    // Mssql driver on windows hosts
+            'dblib'=>'CMssqlSchema',    // dblib drivers on linux (and maybe others os) hosts
+            'sqlsrv'=>'CMssqlSchema',   // Mssql
+            'oci'=>'COciSchema',        // Oracle driver
+            ]
+             **/
 			if(isset($this->driverMap[$driver]))
+			    //创建对应的驱动对象返回
 				return $this->_schema=Yii::createComponent($this->driverMap[$driver], $this);
 			else
 				throw new CDbException(Yii::t('yii','CDbConnection does not support reading schema for {driver} database.',
@@ -723,6 +751,7 @@ class CDbConnection extends CApplicationComponent
 	}
 
 	/**
+     * 得到数据库驱动类型
 	 * Returns the name of the DB driver.
 	 * @return string name of the DB driver.
 	 */

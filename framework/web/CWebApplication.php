@@ -122,6 +122,7 @@ class CWebApplication extends CApplication
 	private $_controller;
 	private $_theme;
 
+	public $requestRoute;
 
 	/**
 	 * Processes the current request.
@@ -141,6 +142,7 @@ class CWebApplication extends CApplication
 		//route一般是请求的uri地址或是解析好的地址
         //解析规则在main.php配置文件里
         //controller/action/id比如
+        $this->requestRoute = $route;
 		$this->runController($route);
 	}
 

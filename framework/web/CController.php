@@ -102,6 +102,8 @@ class CController extends CBaseController
 	private $_pageStates;
 	private $_module;
 
+	public static $baseAction;
+
 
 	/**
 	 * @param string $id id of this controller
@@ -284,6 +286,8 @@ class CController extends CBaseController
 	 */
 	public function runActionWithFilters($action,$filters)
 	{
+        self::$baseAction = $action;
+	    //echo $action->getId();
 		if(empty($filters))
 //没有过滤器时
 			$this->runAction($action);
@@ -291,6 +295,7 @@ class CController extends CBaseController
 		{
 			$priorAction=$this->_action;
 			//$action = CInlineAction对象
+
 			$this->_action=$action;
 			//控制器，方法，过滤器
 			CFilterChain::create($this,$action,$filters)->run();

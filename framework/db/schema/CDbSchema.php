@@ -49,6 +49,7 @@ abstract class CDbSchema extends CComponent
 	 */
 	public function __construct($conn)
 	{
+	    //当前的数据库[Db]连接对象
 		$this->_connection=$conn;
 		foreach($conn->schemaCachingExclude as $name)
 			$this->_cacheExclude[$name]=true;

@@ -39,11 +39,11 @@
  */
 abstract class CActiveRecord extends CModel
 {
-	const BELONGS_TO='CBelongsToRelation';
-	const HAS_ONE='CHasOneRelation';
-	const HAS_MANY='CHasManyRelation';
-	const MANY_MANY='CManyManyRelation';
-	const STAT='CStatRelation';
+    const BELONGS_TO = 'CBelongsToRelation';
+    const HAS_ONE = 'CHasOneRelation';
+    const HAS_MANY = 'CHasManyRelation';
+    const MANY_MANY = 'CManyManyRelation';
+    const STAT = 'CStatRelation';
 
 	/**
 	 * @var CDbConnection the default database connection for all active record classes.
@@ -74,7 +74,10 @@ abstract class CActiveRecord extends CModel
 		if($scenario===null) // internally used by populateRecord() and model()
 			return;
 
+		//echo $scenario;
+        //设置方案
 		$this->setScenario($scenario);
+		//记录设置为新的
 		$this->setIsNewRecord(true);
 		$this->_attributes=$this->getMetaData()->attributeDefaults;
 
@@ -401,11 +404,13 @@ abstract class CActiveRecord extends CModel
 	}
 
 	/**
+     * 获取AR的元数据
 	 * Returns the meta-data for this AR
 	 * @return CActiveRecordMetaData the meta for this AR class.
 	 */
 	public function getMetaData()
 	{
+	    //当前运行的类名
 		$className=get_class($this);
 		if(!array_key_exists($className,self::$_md))
 		{
@@ -636,6 +641,7 @@ abstract class CActiveRecord extends CModel
 			return self::$db;
 		else
 		{
+		    //得到数据库的连接对象 CDbConnection
 			self::$db=Yii::app()->getDb();
 			if(self::$db instanceof CDbConnection)
 				return self::$db;
@@ -827,6 +833,7 @@ abstract class CActiveRecord extends CModel
 	}
 
 	/**
+     * 设置记录是否是新的
 	 * Sets if the record is new.
 	 * @param boolean $value whether the record is new and should be inserted when calling {@link save}.
 	 * @see getIsNewRecord
@@ -2378,14 +2385,18 @@ class CActiveRecordMetaData
 
 	/**
 	 * Constructor.
-	 * @param CActiveRecord $model the model instance
+	 * @param CActiveRecord $model the model instance 当前模型的实例
 	 * @throws CDbException if specified table for active record class cannot be found in the database
 	 */
 	public function __construct($model)
 	{
+	    //当前模型的类名
 		$this->_modelClassName=get_class($model);
 
+		//得到当前模型的表名
 		$tableName=$model->tableName();
+		//$table=$model->getDbConnection() = CDbConnection
+        //->getSchema()                    =CMysqlSchema/CDbSchema/CComponent
 		if(($table=$model->getDbConnection()->getSchema()->getTable($tableName))===null)
 			throw new CDbException(Yii::t('yii','The table "{table}" for active record class "{class}" cannot be found in the database.',
 				array('{class}'=>$this->_modelClassName,'{table}'=>$tableName)));
