@@ -224,6 +224,7 @@ abstract class CModule extends CComponent
 	{
 	    //print_r($aliases);
 		foreach($aliases as $alias)
+		    //echo $alias;
 			Yii::import($alias);
 	}
 
@@ -398,6 +399,8 @@ abstract class CModule extends CComponent
 				unset($config['enabled']);
 				//实例化组件 $config一般带有组件对应的具体类和相关配置参数
 
+                //得到组件类并实例化【可能会带组件参数实例化】
+                //
 				$component=Yii::createComponent($config);
 				$component->init();
 				return $this->_components[$id]=$component;
@@ -421,6 +424,7 @@ abstract class CModule extends CComponent
 	 */
 	public function setComponent($id,$component,$merge=true)
 	{
+
 		if($component===null)
 		{
 			unset($this->_components[$id]);
@@ -514,6 +518,7 @@ abstract class CModule extends CComponent
 	 */
 	public function setComponents($components,$merge=true)
 	{
+	    //print_r($components);
 		foreach($components as $id=>$component)
 			$this->setComponent($id,$component,$merge);
 	}
@@ -536,7 +541,7 @@ abstract class CModule extends CComponent
 	 */
 	protected function preloadComponents()
 	{
-	    //print_r($this->preload);
+	    print_r($this->preload);
 		foreach($this->preload as $id)
 			$this->getComponent($id);
 	}

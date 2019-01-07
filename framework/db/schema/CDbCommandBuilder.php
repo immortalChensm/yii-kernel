@@ -30,6 +30,8 @@ class CDbCommandBuilder extends CComponent
 	 */
 	public function __construct($schema)
 	{
+	    //当前的$schema
+        //可以访问$schema->_tables[$name]=$table;
 		$this->_schema=$schema;
 		$this->_connection=$schema->getDbConnection();
 	}
@@ -96,6 +98,8 @@ class CDbCommandBuilder extends CComponent
 		$sql=$this->applyHaving($sql,$criteria->having);
 		$sql=$this->applyOrder($sql,$criteria->order);
 		$sql=$this->applyLimit($sql,$criteria->limit,$criteria->offset);
+
+		echo $sql;
 		$command=$this->_connection->createCommand($sql);
 		$this->bindValues($command,$criteria->params);
 		return $command;
@@ -241,6 +245,8 @@ class CDbCommandBuilder extends CComponent
 			}
 		}
 		$sql="INSERT INTO {$table->rawName} (".implode(', ',$fields).') VALUES ('.implode(', ',$placeholders).')';
+
+		echo $sql;
 		$command=$this->_connection->createCommand($sql);
 
 		foreach($values as $name=>$value)
@@ -571,6 +577,7 @@ class CDbCommandBuilder extends CComponent
 	}
 
 	/**
+     * 创建一个查询规则
 	 * Creates a query criteria.
 	 * @param mixed $condition query condition or criteria.
 	 * If a string, it is treated as query condition (the WHERE clause);
@@ -584,6 +591,7 @@ class CDbCommandBuilder extends CComponent
 	 */
 	public function createCriteria($condition='',$params=array())
 	{
+
 		if(is_array($condition))
 			$criteria=new CDbCriteria($condition);
 		elseif($condition instanceof CDbCriteria)

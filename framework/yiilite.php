@@ -81,6 +81,7 @@ class YiiBase
 		}
 		elseif(isset($config['class']))
 		{
+		    //取得组件类名
 			$type=$config['class'];
 			unset($config['class']);
 		}
@@ -114,12 +115,15 @@ class YiiBase
 	public static function import($alias,$forceInclude=false)
 	{
 
+	    //print_r(self::$_imports);
 		if(isset(self::$_imports[$alias]))  // previously imported
+            echo 1;
 			return self::$_imports[$alias];
 		if(class_exists($alias,false) || interface_exists($alias,false))
+            echo 2;
 			return self::$_imports[$alias]=$alias;
 		if(($pos=strrpos($alias,'\\'))!==false) // a class name in PHP 5.3 namespace format
-		{
+		{echo 3;
 			$namespace=str_replace('\\','.',ltrim(substr($alias,0,$pos),'\\'));
 			if(($path=self::getPathOfAlias($namespace))!==false)
 			{
@@ -137,7 +141,7 @@ class YiiBase
 				return $alias;
 			}
 			else
-			{
+			{echo 4;
 				// try to autoload the class with an autoloader
 				if (class_exists($alias,true))
 					return self::$_imports[$alias]=$alias;
@@ -147,12 +151,13 @@ class YiiBase
 			}
 		}
 		if(($pos=strrpos($alias,'.'))===false)  // a simple class name
-		{
+		{echo 5;
 			// try to autoload the class with an autoloader if $forceInclude is true
 			if($forceInclude && (Yii::autoload($alias,true) || class_exists($alias,true)))
 				self::$_imports[$alias]=$alias;
 			return $alias;
 		}
+        echo 6;
 		$className=(string)substr($alias,$pos+1);
 		$isClass=$className!=='*';
 		if($isClass && (class_exists($className,false) || interface_exists($className,false)))

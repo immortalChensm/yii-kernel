@@ -122,6 +122,9 @@ class CMysqlSchema extends CDbSchema
 	 */
 	protected function loadTable($name)
 	{
+        /**CDbTableSchema
+         * table 对象存储了表的名称，表的字段，主键等信息
+         */
 		$table=new CMysqlTableSchema;
 		$this->resolveTableNames($table,$name);
 
@@ -173,7 +176,23 @@ class CMysqlSchema extends CDbSchema
 		}
 		foreach($columns as $column)
 		{
+            /***
+             *
+            $c=new CMysqlColumnSchema;
+            $c->name=$column['Field'];
+            $c->rawName=$this->quoteColumnName($c->name);
+            $c->allowNull=$column['Null']==='YES';
+            $c->isPrimaryKey=strpos($column['Key'],'PRI')!==false;
+            $c->isForeignKey=false;
+            $c->init($column['Type'],$column['Default']);
+            $c->autoIncrement=strpos(strtolower($column['Extra']),'auto_increment')!==false;
+            if(isset($column['Comment']))
+            $c->comment=$column['Comment'];
+
+            return $c;
+             */
 			$c=$this->createColumn($column);
+			//列名=列对象【映射表的列字段信息，列名，数据类型，就否主键，自动增加，注释等
 			$table->columns[$c->name]=$c;
 			if($c->isPrimaryKey)
 			{

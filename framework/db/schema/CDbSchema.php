@@ -37,7 +37,7 @@ abstract class CDbSchema extends CComponent
 	private $_cacheExclude=array();
 
 	/**
-	 * Loads the metadata for the specified table.
+	 * Loads the metadata for thgetTablee specified table.
 	 * @param string $name table name
 	 * @return CDbTableSchema driver dependent table metadata, null if the table does not exist.
 	 */
@@ -76,6 +76,9 @@ abstract class CDbSchema extends CComponent
 			return $this->_tables[$name];
 		else
 		{
+		    /**
+		    得到数据表的完整名称
+             **/
 			if($this->_connection->tablePrefix!==null && strpos($name,'{{')!==false)
 				$realName=preg_replace('/\{\{(.*?)\}\}/',$this->_connection->tablePrefix.'$1',$name);
 			else
@@ -98,6 +101,7 @@ abstract class CDbSchema extends CComponent
 					if($table!==null)
 						$cache->set($key,$table,$duration);
 				}
+				//表名=表映射对象
 				$this->_tables[$name]=$table;
 			}
 			else

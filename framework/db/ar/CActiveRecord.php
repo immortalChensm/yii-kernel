@@ -79,6 +79,8 @@ abstract class CActiveRecord extends CModel
 		$this->setScenario($scenario);
 		//记录设置为新的
 		$this->setIsNewRecord(true);
+		//$this->getMetaData() 得到表的数据结构【根据当前模型名获取数据表名，解析字段结构映射为对象】
+        //得到数据表的字段数组【字段名称】=字段默认值
 		$this->_attributes=$this->getMetaData()->attributeDefaults;
 
 		$this->init();
@@ -128,6 +130,10 @@ abstract class CActiveRecord extends CModel
 	}
 
 	/**
+     * 字段动态取值的功能
+     * 拦截器方法
+     * 当实例化模型时，如
+     * Model->fieldName 时触发本拦截器，从而获取
 	 * PHP getter magic method.
 	 * This method is overridden so that AR attributes can be accessed like properties.
 	 * @param string $name property name
@@ -136,6 +142,7 @@ abstract class CActiveRecord extends CModel
 	 */
 	public function __get($name)
 	{
+	    //取得字段的值
 		if(isset($this->_attributes[$name]))
 			return $this->_attributes[$name];
 		elseif(isset($this->getMetaData()->columns[$name]))
@@ -149,6 +156,7 @@ abstract class CActiveRecord extends CModel
 	}
 
 	/**
+     * 字段动态赋值的功能
 	 * PHP setter magic method.
 	 * This method is overridden so that AR attributes can be accessed like properties.
 	 * @param string $name property name
@@ -157,6 +165,8 @@ abstract class CActiveRecord extends CModel
 	 */
 	public function __set($name,$value)
 	{
+	    //	$this->_attributes[$name]=$value;
+        //字段动态给值
 		if($this->setAttribute($name,$value)===false)
 		{
 			if(isset($this->getMetaData()->relations[$name]))
@@ -404,7 +414,7 @@ abstract class CActiveRecord extends CModel
 	}
 
 	/**
-     * 获取AR的元数据
+     * 获取AR的元数据[得到表的数据结构]
 	 * Returns the meta-data for this AR
 	 * @return CActiveRecordMetaData the meta for this AR class.
 	 */
@@ -412,6 +422,8 @@ abstract class CActiveRecord extends CModel
 	{
 	    //当前运行的类名
 		$className=get_class($this);
+		//echo $className;
+		//将当前模型类对应的数据表字段结构解析映射为对象返回
 		if(!array_key_exists($className,self::$_md))
 		{
 			self::$_md[$className]=null; // preventing recursive invokes of {@link getMetaData()} via {@link __get()}
@@ -813,6 +825,7 @@ abstract class CActiveRecord extends CModel
 	 */
 	public function save($runValidation=true,$attributes=null)
 	{
+
 		if(!$runValidation || $this->validate($attributes))
 			return $this->getIsNewRecord() ? $this->insert($attributes) : $this->update($attributes);
 		else
@@ -1079,6 +1092,7 @@ abstract class CActiveRecord extends CModel
 	 */
 	public function insert($attributes=null)
 	{
+	    echo "save";
 		if(!$this->getIsNewRecord())
 			throw new CDbException(Yii::t('yii','The active record cannot be inserted to database because it is not new.'));
 		if($this->beforeSave())
@@ -1087,6 +1101,8 @@ abstract class CActiveRecord extends CModel
 			$builder=$this->getCommandBuilder();
 			$table=$this->getTableSchema();
 			$command=$builder->createInsertCommand($table,$this->getAttributes($attributes));
+
+
 			if($command->execute())
 			{
 				$primaryKey=$table->primaryKey;
@@ -1362,6 +1378,7 @@ abstract class CActiveRecord extends CModel
 		{
 			if(!$all)
 				$criteria->limit=1;
+			//生成sql命令对象
 			$command=$this->getCommandBuilder()->createFindCommand($this->getTableSchema(),$criteria);
 			return $all ? $this->populateRecords($command->queryAll(), true, $criteria->index) : $this->populateRecord($command->queryRow());
 		}
@@ -1467,6 +1484,8 @@ abstract class CActiveRecord extends CModel
 	public function find($condition='',$params=array())
 	{
 		Yii::trace(get_class($this).'.find()','system.db.ar.CActiveRecord');
+		//创建命令构造器 它可以得到当前运行的表结构，当前数据库连接
+        //创建好查询标准
 		$criteria=$this->getCommandBuilder()->createCriteria($condition,$params);
 		return $this->query($criteria);
 	}
@@ -2395,14 +2414,17 @@ class CActiveRecordMetaData
 
 		//得到当前模型的表名
 		$tableName=$model->tableName();
-		//$table=$model->getDbConnection() = CDbConnection
+		//$table=$model->getDbConnection() = CDbConnection 当前数据连接
         //->getSchema()                    =CMysqlSchema/CDbSchema/CComponent
+
+        //将表传递过去，解析获取数据表的字段结构和表字段信息
 		if(($table=$model->getDbConnection()->getSchema()->getTable($tableName))===null)
 			throw new CDbException(Yii::t('yii','The table "{table}" for active record class "{class}" cannot be found in the database.',
 				array('{class}'=>$this->_modelClassName,'{table}'=>$tableName)));
 				
 		if(($modelPk=$model->primaryKey())!==null || $table->primaryKey===null)
 		{
+		    //主键重置
 			$table->primaryKey=$modelPk;
 			if(is_string($table->primaryKey) && isset($table->columns[$table->primaryKey]))
 				$table->columns[$table->primaryKey]->isPrimaryKey=true;
@@ -2415,12 +2437,16 @@ class CActiveRecordMetaData
 				}
 			}
 		}
+		//表对象
 		$this->tableSchema=$table;
+		//表列结构对象数组【将列名，列数据类型，注册，主键否等映射为对象】
 		$this->columns=$table->columns;
 
+		//将列名作为本类的属性
 		foreach($table->columns as $name=>$column)
 		{
 			if(!$column->isPrimaryKey && $column->defaultValue!==null)
+			    //列名=列默认值
 				$this->attributeDefaults[$name]=$column->defaultValue;
 		}
 
